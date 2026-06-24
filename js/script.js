@@ -239,13 +239,39 @@ function initForms() {
   });
 
   document.querySelectorAll("[data-newsletter]").forEach((form) => {
-    form.addEventListener("submit", (event) => {
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = new FormData(form);
       const name = String(data.get("name") || "").trim();
       const email = String(data.get("email") || "").trim();
+      const error = form.querySelector("[data-newsletter-error]");
+      const button = form.querySelector("button[type='submit']");
+      if (error) error.textContent = "";
       if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
       saveLead({ name, email, mobile: "", service: "Newsletter", message: "Subscribed for website development tips" });
+      if (form.dataset.emailService === "formsubmit" && form.dataset.emailEndpoint) {
+        try {
+          if (button) {
+            button.disabled = true;
+            button.textContent = "Subscribing...";
+          }
+          const response = await fetch(form.dataset.emailEndpoint, {
+            method: "POST",
+            body: data,
+            headers: { Accept: "application/json" }
+          });
+          if (!response.ok) throw new Error("Newsletter service failed");
+        } catch (newsletterError) {
+          if (error) {
+            error.textContent = "Subscription saved. Email delivery needs service activation or internet access.";
+          }
+        } finally {
+          if (button) {
+            button.disabled = false;
+            button.textContent = "Subscribe";
+          }
+        }
+      }
       form.reset();
       const success = form.querySelector(".success-message");
       if (success) success.classList.add("show");
