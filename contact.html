@@ -31,7 +31,7 @@
           <button class="btn btn-primary" data-open-consultation>Request Free Consultation</button>
         </aside>
 
-        <form class="form-card" data-lead-form="contact">
+       <form id="contactForm" class="form-card">
           <h2>Professional Enquiry Form</h2>
           <div class="form-grid">
             <div class="field"><label for="name">Full Name</label><input id="name" name="name" type="text" autocomplete="name"><span class="error" data-error="name"></span></div>
@@ -67,6 +67,54 @@
   <footer class="site-footer"><div class="container"><div class="footer-top"><div><h2>Let's Build Something Amazing Together</h2><p>Transforming Ideas into Digital Solutions</p></div><form class="newsletter-card" data-newsletter><h3>Get Website Development Tips & Offers</h3><input name="name" type="text" placeholder="Your name" required><input name="email" type="email" placeholder="Email address" required><button class="btn btn-primary" type="submit">Subscribe</button><div class="success-message">Thanks for subscribing.</div></form></div><div class="footer-grid"><div><a class="brand" href="index.html"><span class="brand-mark">TN</span><span>Tanisha Nalawade</span></a><p>Java Full Stack Developer creating premium business websites and scalable web applications.</p><div class="social-row"><a href="https://github.com/Tanisha804">GH</a><a href="https://www.linkedin.com/in/tanisha-nalawade">IN</a><a href="mailto:nalawadetanisha5@gmail.com">@</a></div></div><div><h3>Quick Links</h3><ul class="footer-list"><li><a href="index.html">Home</a></li><li><a href="about.html">About</a></li><li><a href="services.html">Services</a></li><li><a href="portfolio.html">Portfolio</a></li></ul></div><div><h3>Services</h3><ul class="footer-list"><li>Business Websites</li><li>REST APIs</li><li>Full Stack Apps</li><li>Maintenance</li></ul></div><div><h3>Contact</h3><ul class="footer-list"><li><a href="mailto:nalawadetanisha5@gmail.com">nalawadetanisha5@gmail.com</a></li><li><a href="tel:+917387479140">7387479140</a></li><li>Visitors: <span data-visitors>0000</span></li><li><span data-live-time></span></li></ul></div></div><div class="footer-bottom"><span>© 2026 Tanisha Chandrakant Nalawade.</span><span>Ocean Mist Premium Portfolio</span></div></div></footer>
   <div class="floating-contact"><a href="https://wa.me/917387479140">WA</a><a href="mailto:nalawadetanisha5@gmail.com">@</a><a href="tel:+917387479140">☎</a></div><button class="back-top" aria-label="Back to top">↑</button>
   <div class="modal"><div class="modal-panel"><div class="modal-head"><h2>Request Free Consultation</h2><button class="icon-button" data-close-modal>×</button></div><form data-lead-form="consultation" class="form-grid"><div class="field"><label>Name</label><input name="name" type="text"><span class="error" data-error="name"></span></div><div class="field"><label>Email</label><input name="email" type="email"><span class="error" data-error="email"></span></div><div class="field"><label>Mobile</label><input name="mobile" type="tel"><span class="error" data-error="mobile"></span></div><div class="field"><label>Business Type</label><input name="businessType" type="text"></div><div class="field full"><button class="btn btn-primary" type="submit">Send Request</button><div class="success-message">Your consultation request has been saved.</div></div></form></div></div>
+
+   
+  <!-- EmailJS Library -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+emailjs.init("w5I0L9s5zdTWZZfMv");
+
+const form = document.getElementById("contactForm");
+
+form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const templateParams = {
+        name: document.getElementById("name").value,
+        email: document.getElementById("email").value,
+        mobile: document.getElementById("mobile").value,
+        company: document.getElementById("company").value,
+        service: document.getElementById("service").value,
+        budget: document.getElementById("budget").value,
+        message: document.getElementById("message").value
+    };
+
+    emailjs.send(
+        "service_rsxrhhc",
+        "template_pfj5aul",
+        templateParams
+    )
+    .then(() => {
+        return emailjs.send(
+            "service_rsxrhhc",
+            "template_xswm7tb",
+            templateParams
+        );
+    })
+    .then(() => {
+        alert("Thank you! Your enquiry has been submitted.");
+        form.reset();
+    })
+    .catch((error) => {
+        console.error(error);
+        alert("Failed to send enquiry.");
+    });
+});
+</script>
+
+
+
   <script src="js/script.js"></script>
 </body>
 </html>

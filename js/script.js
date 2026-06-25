@@ -152,6 +152,19 @@ function initPortfolioFilters() {
   });
 }
 
+function initServiceTrainObserver() {
+  const trains = document.querySelectorAll("[data-service-train]");
+  if (!trains.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      entry.target.classList.toggle("is-paused", !entry.isIntersecting);
+    });
+  }, { threshold: 0.08 });
+
+  trains.forEach((train) => observer.observe(train));
+}
+
 function setError(form, name, message) {
   const error = form.querySelector(`[data-error="${name}"]`);
   if (error) error.textContent = message;
@@ -249,21 +262,38 @@ function initForms() {
       if (error) error.textContent = "";
       if (!name || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
       saveLead({ name, email, mobile: "", service: "Newsletter", message: "Subscribed for website development tips" });
-      if (form.dataset.emailService === "formsubmit" && form.dataset.emailEndpoint) {
+      if (form.dataset.emailService === "emailjs") {
         try {
           if (button) {
             button.disabled = true;
             button.textContent = "Subscribing...";
           }
-          const response = await fetch(form.dataset.emailEndpoint, {
+          const serviceId = form.dataset.emailjsService;
+          const templateId = form.dataset.emailjsTemplate;
+          const publicKey = form.dataset.emailjsPublicKey;
+          const isConfigured = serviceId && templateId && publicKey && !serviceId.startsWith("YOUR_") && !templateId.startsWith("YOUR_") && !publicKey.startsWith("YOUR_");
+          if (!isConfigured) {
+            throw new Error("EmailJS is not configured");
+          }
+          const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
             method: "POST",
-            body: data,
-            headers: { Accept: "application/json" }
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              service_id: serviceId,
+              template_id: templateId,
+              user_id: publicKey,
+              template_params: {
+                to_name: name,
+                to_email: email,
+                subscriber_email: email,
+                message: "Thank you for subscribing to Tanisha Nalawade's website development tips. Quick starter tips: keep your website mobile-first, use clear call-to-action buttons, compress images for faster loading, add trust sections, and keep your contact form simple. More updates and offers will be shared soon."
+              }
+            })
           });
-          if (!response.ok) throw new Error("Newsletter service failed");
+          if (!response.ok) throw new Error("EmailJS request failed");
         } catch (newsletterError) {
           if (error) {
-            error.textContent = "Subscription saved. Email delivery needs service activation or internet access.";
+            error.textContent = "Subscription saved. Add EmailJS service/template/public key to send tips to the entered email.";
           }
         } finally {
           if (button) {
@@ -339,6 +369,7 @@ initReveal();
 initCounters();
 initAccordion();
 initPortfolioFilters();
+initServiceTrainObserver();
 initForms();
 initModal();
 initFooterUtilities();
